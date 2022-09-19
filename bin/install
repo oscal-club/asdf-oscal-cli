@@ -1,0 +1,50 @@
+#!/bin/env bash
+
+# global for error reporting
+ASDF_OSCALCLI_ERROR=""
+
+# Download Maven source from Apache, build, copy files and cleanup.
+install_oscalcli() {
+	local version=$1
+	local destdir=$2
+
+	get_oscalcli $version $destdir
+	[[ -z "$ASDF_OSCALCLI_ERROR" ]] || return
+
+	build_copy_cleanup $version $destdir
+}
+
+# Download oscal-cli from upstream usnistgov Maven repo.
+#
+# TODO: Capture errors from curl.
+get_oscalcli() {
+	local version=$1
+	local destdir=$2
+
+	local major=$(echo $version | cut -d '.' -f 1)
+	local base="https://repo1.maven.org/maven2/gov/nist/secauto/oscal"
+	local url="$base/tools/oscal-cli/cli-core/$version/cli-core-$version-oscal-cli.tar.bz2"
+
+	curl -fLC - --retry 3 --retry-delay 3 -o "$destdir/$version.tar.bz2" "$url"
+}
+
+# Build Maven, copy files and cleanup.
+build_copy_cleanup() {
+	local version=$1
+	local destdir=$2
+
+	local origin=$(pwd)
+	cd "$destdir"; {
+		tar xvjf $version.tar.bz2
+		rm $version.tar.bz2
+	}
+	cd $origin
+}
+
+#
+# MAIN
+#
+install_oscalcli $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
+
+[[ -z "$ASDF_OSCALCLI_ERROR" ]] || echo "ERROR: $ASDF_OSCALCLI_ERROR."
+unset ASDF_OSCALCLI_ERROR
