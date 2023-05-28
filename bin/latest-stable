@@ -1,0 +1,5 @@
+#!/bin/env bash
+
+releases=($(curl -L --silent 'https://repo1.maven.org/maven2/gov/nist/secauto/oscal/tools/oscal-cli/cli-core/maven-metadata.xml' | sed -En 's|<version>(.*)</version>|\1|p' | tr -d '\n'))
+versions=("${releases[@]}")
+echo ${versions[@]}
