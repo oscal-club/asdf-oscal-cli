@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-echo "0.1.1 0.2.0 0.3.0 0.3.1 0.3.2"
+releases=($(curl -L --silent 'https://repo1.maven.org/maven2/gov/nist/secauto/oscal/tools/oscal-cli/cli-core/maven-metadata.xml' | sed -En 's|<version>(.*)</version>|\1|p' | tr -d '\n'))
+snapshots=($(curl -L --silent 'https://oss.sonatype.org/content/repositories/snapshots/gov/nist/secauto/oscal/tools/oscal-cli/cli-core/maven-metadata.xml' | sed -En 's|<version>(.*)</version>|\1|p' | tr -d '\n'))
+snapshot_builds=($(curl -L --silent 'https://oss.sonatype.org/content/repositories/snapshots/gov/nist/secauto/oscal/tools/oscal-cli/cli-core/0.3.4-SNAPSHOT/maven-metadata.xml' | sed -En 's|<value>(.*)</value>|\1|p' | tr -d '\n'))
+versions=("${releases[@]}" "${snapshot_builds[-1]}")
+echo ${versions[@]}

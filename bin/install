@@ -21,9 +21,16 @@ get_oscalcli() {
 	local version=$1
 	local destdir=$2
 
-	local major=$(echo $version | cut -d '.' -f 1)
-	local base="https://repo1.maven.org/maven2/gov/nist/secauto/oscal"
-	local url="$base/tools/oscal-cli/cli-core/$version/cli-core-$version-oscal-cli.tar.bz2"
+	if [[ $version == *"-"* ]]; then
+		local base="https://oss.sonatype.org/content/repositories/snapshots/gov/nist/secauto/oscal/tools/oscal-cli/cli-core"
+		IFS='-'
+		read -a version_parts <<< "${version}"
+		local url="$base/${version_parts[0]}-SNAPSHOT/cli-core-${version}-oscal-cli.tar.bz2"
+		unset IFS
+	else
+		local base="https://repo1.maven.org/maven2/gov/nist/secauto/oscal/tools/oscal-cli/cli-core"
+		local url="$base/$version/cli-core-$version-oscal-cli.tar.bz2"
+	fi
 
 	curl -fLC - --retry 3 --retry-delay 3 -o "$destdir/$version.tar.bz2" "$url"
 }
